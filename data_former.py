@@ -94,14 +94,15 @@ def dataset_creator(name, path):
             'leaf_count_range': leaf_count_range
         }
 
-        with open(f'{name}.json', 'w') as file:
+        with open(f'json/{name}.json', 'w') as file:
             json.dump(ranges_data, file)
 
     # add_values()
     data = []
 
-    if os.path.exists(f"{name}.json"):
-        with open(f'{name}.json','r') as file:
+    if os.path.exists(f'json/{name}.json'):
+        print(f"Found {name} data JSON.")
+        with open(f'json/{name}.json','r') as file:
             ranges_data = json.load(file)
         temperature_range = ranges_data['temperature_range']
         humidity_range = ranges_data['humidity_range']
