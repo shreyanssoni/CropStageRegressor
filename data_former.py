@@ -2,9 +2,15 @@ import numpy as np
 import pandas as pd
 import os
 import json
+
 def new_plant_creator(name, path): 
     print(f"Creating a new file called {name}.xlsx...")
     # print(path)
+    json_path = f"{os.getcwd()}/json"
+
+    if not os.path.exists(json_path):
+        os.makedirs(json_path)
+
     dataset_creator(name, path)
     return 0
 

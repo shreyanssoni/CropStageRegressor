@@ -6,7 +6,10 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
 
-folder_path = 'C:/Users/soni2/Desktop/Shreyans/AI/Crop/Control/workbooks'
+folder_path = f"{os.getcwd()}/workbooks"
+
+if not os.path.exists(folder_path):
+    os.makedirs(folder_path)
 
 def prediction_model(name, height_value, leaf):
     ordinal_encoder = OrdinalEncoder()

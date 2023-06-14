@@ -11,7 +11,10 @@ window_m.title("CropStageRegressor")
 style = ttk.Style()
 style.configure("Custom.TButton", font=("Arial", 10))
 
-folder_path = 'C:/Users/soni2/Desktop/Shreyans/AI/Crop/Control/workbooks'
+folder_path = f"{os.getcwd()}/workbooks"
+
+if not os.path.exists(folder_path):
+    os.makedirs(folder_path)
 
 # Create a frame for content
 content_frame = ttk.Frame(window_m)
