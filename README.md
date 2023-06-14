@@ -21,6 +21,3 @@ To run the code, execute the following command:
 
 ```shell
 python predict.py
-
-
-

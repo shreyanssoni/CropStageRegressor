@@ -1,6 +1,5 @@
 import pandas as pd
 import os
-from data_former import new_plant_creator
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, OrdinalEncoder
 from sklearn.ensemble import RandomForestRegressor
@@ -9,50 +8,7 @@ from sklearn.metrics import mean_absolute_error
 
 folder_path = 'C:/Users/soni2/Desktop/Shreyans/AI/Crop/Control/workbooks'
 
-name = []
-def select_file():
-    file_list = os.listdir(folder_path)
-    xlsx = [file for file in file_list if file.endswith('.xlsx')]
-    # print(xlsx)
-    if xlsx != []:
-        print("Following plant models were found: ")
-        for i, file in enumerate(xlsx, 1):
-            print(f"{i}. {file[:-5]}")
-        print(f"{i+1}. Create a new plant.")
-        selection = input("Enter the number corresponding to the plant growing: ")
-        print("\n")
-    else: 
-        print("No plant data exists. Creating a new plant. ")
-        selection = 1;
-    try: 
-        selection = int(selection)
-        if 1 <= selection <= len(xlsx):
-            selected_file = xlsx[selection -1 ]
-            print(f"You selected: {selected_file[:-5]}")
-            name = selected_file.lower()
-            print("reached here")
-            if name != None: 
-                print(f"reached here also, {name}")
-                return name
-            else: print("Name not found. Press Ctrl + C to quit.")
-        elif selection == len(xlsx) + 1:
-            new_plant = input("Enter the name of new plant: ")
-            if os.path.exists(folder_path + "/" + new_plant + ".xlsx"):
-                print("This file already exists in the folder.\nProceeding to model prediction...")
-            else: 
-                # Workbook().save(f"{folder_path}/{new_plant}.xlsx")
-                path = folder_path + "/" + new_plant + ".xlsx"
-                new_plant_creator(new_plant, path)
-                print(f"New file called {new_plant}.xlsx created!")
-            return str(new_plant) + ".xlsx"
-        else: 
-            print("...Invalid Selection, Retry!\n")
-            select_file()
-    except ValueError:
-        print("...Invalid input, Retry!\n")
-        select_file()
-
-def prediction_model():
+def prediction_model(name, height_value, leaf):
     ordinal_encoder = OrdinalEncoder()
     data['stage_encoded'] = ordinal_encoder.fit_transform(data[['stage']])
     print("Label encoding of categorical values done...")
@@ -76,11 +32,13 @@ def prediction_model():
     # Taking user input for prediction: 
 
     def user_predictions(): 
+        acc = round(accuracy(),2)
+        print(f"The MAE of this model is found to be: {acc}")
 
-        print(f"The MAE of this model is found to be: {accuracy()}")
-
-        height = input("Average of height values: ")
-        leafcount = input("Average of Leaf Count: ")
+        # height = input("Average of height values: ") 
+        # leafcount = input("Average of Leaf Count: ")
+        height = height_value 
+        leafcount = leaf
         input_data = pd.DataFrame({'plantheight': [height], 'leafcount': [leafcount]})
 
         input_data.columns = X.columns
@@ -102,10 +60,17 @@ def prediction_model():
         table_data = [
             [stagestr, temperature, humidity, light, co2, ec, pH]
         ]
-        print("printing results...")
-        printtable(headers, table_data)
 
-        return 0
+        try: 
+            df = pd.DataFrame(table_data, columns = headers)
+            df.to_csv(f"predictions/{name[:-5]}_predictions.csv", index=False)
+        except PermissionError:
+            print("File in use!")
+            return -1
+        # print("printing results...")
+        # printtable(headers, table_data)
+
+        return table_data
 
     def printtable(headers, table_data):
         column_widths = [max(len(str(item)) for item in col) for col in zip(headers, *table_data)]
@@ -132,22 +97,29 @@ def prediction_model():
         print_horizontal_line()
 
         return 0
+    tdata = user_predictions()
+    return tdata
+    # user_input = input("Press Enter key for User Predictions ")
+    # if user_input == "": 
+    #     user_predictions()
+    # else: 
+    #     print("Invalid input key.")
 
-    user_input = input("Press Enter key for User Predictions ")
-    if user_input == "": 
-        user_predictions()
+data = []
+def start_process(name, height_value, leaf_count):
+    global data
+    name = str(name) + ".xlsx"
+    if name != None: 
+        if os.path.exists(folder_path + "/" + str(name)): 
+            data = pd.read_excel(folder_path + "/" + str(name))
+            tdata = prediction_model(name, height_value, leaf_count)
+            return tdata
+        else: 
+            print(f"The file {name} does not exist!")
+            return f"The file {name} does not exist!"
+
     else: 
-        print("Invalid input key.")
-
-name = select_file()
-if name != None: 
-    if os.path.exists(folder_path + "/" + str(name)): 
+        print("\nCouldn't Capture due to error. Try once again...\n")
         data = pd.read_excel(folder_path + "/" + str(name))
-        prediction_model()
-    else: 
-        print(f"The file {name} does not exist!") 
-else: 
-    print("\nCouldn't Capture due to error. Try once again...\n")
-    name = select_file()
-    data = pd.read_excel(folder_path + "/" + str(name))
-    prediction_model()
+        tdata = prediction_model(height_value, leaf_count)
+        return tdata
